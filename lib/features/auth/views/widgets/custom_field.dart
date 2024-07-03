@@ -8,17 +8,20 @@ class CustomField extends StatelessWidget {
     this.hintText,
     this.isObscureText = false,
     this.validator,
+    this.textInputType,
   });
   final String name;
   final String? hintText;
   final bool isObscureText;
   final String? Function(String?)? validator;
+  final TextInputType? textInputType;
 
   @override
   Widget build(BuildContext context) {
     return FormBuilderTextField(
       name: name,
       decoration: InputDecoration(hintText: hintText),
+      keyboardType: textInputType,
       obscureText: isObscureText,
       validator: validator,
     );
