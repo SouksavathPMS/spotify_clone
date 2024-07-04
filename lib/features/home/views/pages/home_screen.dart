@@ -14,8 +14,9 @@ class HomeScreen extends ConsumerWidget {
       body: Center(
         child: TextButton(
           onPressed: () {
-            context.goNamed(SigninPage.routeName);
-            ref.read(authViewModelProvider.notifier).signOut();
+            ref.read(authViewModelProvider.notifier).signOut().then(
+                  (_) => context.goNamed(SigninPage.routeName),
+                );
           },
           child: const Text("Log out"),
         ),

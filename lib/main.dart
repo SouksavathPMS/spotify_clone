@@ -2,11 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:spotify_clone/core/routers/app_router_provider.dart';
 import 'package:spotify_clone/core/theme/theme.dart';
+import 'package:spotify_clone/features/auth/repository/auth_local_repository.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  final providerContainer = ProviderContainer();
+  await providerContainer.read(authLocalRepositoryProvider).init();
+
   runApp(
-    const ProviderScope(
-      child: MyApp(),
+    UncontrolledProviderScope(
+      container: providerContainer,
+      child: const MyApp(),
     ),
   );
 }

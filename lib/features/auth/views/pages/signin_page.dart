@@ -9,7 +9,6 @@ import 'package:spotify_clone/features/auth/views/widgets/auth_gradient_button.d
 import 'package:spotify_clone/features/auth/views/widgets/custom_field.dart';
 import 'package:spotify_clone/features/home/views/pages/home_screen.dart';
 
-import '../../../../core/utils.dart';
 import '../../viewmodel/auth_viewmodel.dart';
 import 'signup_page.dart';
 
@@ -27,23 +26,8 @@ class _SigninPageState extends ConsumerState<SigninPage> {
   @override
   Widget build(BuildContext context) {
     final appBarHeight = AppBar().preferredSize.height;
-    ref.listen(
-      authViewModelProvider,
-      (previous, next) {
-        next?.when(
-          data: (data) {
-            context.goNamed(HomeScreen.routeName);
-          },
-          error: (error, stackTrace) {
-            showSnackbar(
-              context,
-              content: error.toString(),
-            );
-          },
-          loading: () {},
-        );
-      },
-    );
+    final isLoading = ref.watch(authViewModelProvider)?.isLoading == true;
+
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
@@ -98,38 +82,38 @@ class _SigninPageState extends ConsumerState<SigninPage> {
                           ),
                         ),
                         const SizedBox(height: 20),
-                        Consumer(
-                          builder: (context, ref, child) {
-                            final isLoading =
-                                ref.watch(authViewModelProvider)?.isLoading ==
-                                    true;
+                        isLoading
+                            ? const LoadingWidget()
+                            : AuthGradientButton(
+                                title: "Sign in",
+                                onPressed: () {
+                                  FocusScope.of(context).unfocus();
+                                  if (_formKey.currentState!.validate()) {
+                                    final email = _formKey
+                                        .currentState!.fields['email']!.value;
+                                    final password = _formKey.currentState!
+                                        .fields['password']!.value;
 
-                            return isLoading
-                                ? const LoadingWidget()
-                                : AuthGradientButton(
-                                    title: "Sign in",
-                                    onPressed: () {
-                                      FocusScope.of(context).unfocus();
-                                      if (_formKey.currentState!.validate()) {
-                                        final email = _formKey.currentState!
-                                            .fields['email']!.value;
-                                        final password = _formKey.currentState!
-                                            .fields['password']!.value;
-
-                                        ref
-                                            .read(
-                                                authViewModelProvider.notifier)
-                                            .signin(
-                                                email: email,
-                                                password: password);
-                                      }
-                                    },
-                                  );
-                          },
-                        ),
+                                    ref
+                                        .read(authViewModelProvider.notifier)
+                                        .signin(
+                                            email: email, password: password)
+                                        .then(
+                                      (value) {
+                                        if (!value) {
+                                          return;
+                                        }
+                                        context.goNamed(HomeScreen.routeName);
+                                      },
+                                    );
+                                  }
+                                },
+                              ),
                         const SizedBox(height: 20),
                         GestureDetector(
-                          onTap: () => context.goNamed(SignupPage.routeName),
+                          onTap: isLoading
+                              ? null
+                              : () => context.goNamed(SignupPage.routeName),
                           child: RichText(
                             text: TextSpan(
                               text: "Do not have an account?",

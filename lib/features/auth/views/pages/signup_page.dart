@@ -4,7 +4,6 @@ import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:spotify_clone/core/theme/app_pallete.dart';
-import 'package:spotify_clone/core/utils.dart';
 import 'package:spotify_clone/core/widgets/loading_widget.dart';
 import 'package:spotify_clone/features/auth/viewmodel/auth_viewmodel.dart';
 import 'package:spotify_clone/features/auth/views/pages/signin_page.dart';
@@ -25,27 +24,8 @@ class _SignupPageState extends ConsumerState<SignupPage> {
   @override
   Widget build(BuildContext context) {
     final appBarHeight = AppBar().preferredSize.height;
-    ref.listen(
-      authViewModelProvider,
-      (_, next) {
-        next?.when(
-          data: (data) {
-            context.goNamed(SigninPage.routeName);
-            showSnackbar(
-              context,
-              content: "Account created successfully! Please signin",
-            );
-          },
-          error: (error, stackTrace) {
-            showSnackbar(
-              context,
-              content: error.toString(),
-            );
-          },
-          loading: () {},
-        );
-      },
-    );
+    final isLoading = ref.watch(authViewModelProvider)?.isLoading == true;
+
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
@@ -105,40 +85,42 @@ class _SignupPageState extends ConsumerState<SignupPage> {
                           ),
                         ),
                         const SizedBox(height: 20),
-                        Consumer(
-                          builder: (context, ref, child) {
-                            final isLoading =
-                                ref.watch(authViewModelProvider)?.isLoading ==
-                                    true;
-                            return isLoading
-                                ? const LoadingWidget()
-                                : AuthGradientButton(
-                                    title: "Sign up",
-                                    onPressed: () {
-                                      FocusScope.of(context).unfocus();
-                                      if (_formKey.currentState!.validate()) {
-                                        final name = _formKey.currentState
-                                            ?.fields["name"]?.value;
-                                        final email = _formKey.currentState
-                                            ?.fields["email"]?.value;
-                                        final password = _formKey.currentState
-                                            ?.fields["password"]?.value;
-                                        ref
-                                            .read(
-                                                authViewModelProvider.notifier)
-                                            .signUp(
-                                              name: name,
-                                              email: email,
-                                              password: password,
-                                            );
-                                      }
-                                    },
-                                  );
-                          },
-                        ),
+                        isLoading
+                            ? const LoadingWidget()
+                            : AuthGradientButton(
+                                title: "Sign up",
+                                onPressed: () {
+                                  FocusScope.of(context).unfocus();
+                                  if (_formKey.currentState!.validate()) {
+                                    final name = _formKey
+                                        .currentState?.fields["name"]?.value;
+                                    final email = _formKey
+                                        .currentState?.fields["email"]?.value;
+                                    final password = _formKey.currentState
+                                        ?.fields["password"]?.value;
+                                    ref
+                                        .read(authViewModelProvider.notifier)
+                                        .signUp(
+                                          name: name,
+                                          email: email,
+                                          password: password,
+                                        )
+                                        .then(
+                                      (value) {
+                                        if (!value) {
+                                          return;
+                                        }
+                                        context.goNamed(SigninPage.routeName);
+                                      },
+                                    );
+                                  }
+                                },
+                              ),
                         const SizedBox(height: 20),
                         GestureDetector(
-                          onTap: () => context.goNamed(SigninPage.routeName),
+                          onTap: isLoading
+                              ? null
+                              : () => context.goNamed(SigninPage.routeName),
                           child: RichText(
                             text: TextSpan(
                               text: "Already have an account?",

@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'package:fpdart/fpdart.dart';
 import 'package:http/http.dart' as http;
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:spotify_clone/core/config/path_config.dart';
 import 'package:spotify_clone/core/failure/failure.dart';
 
@@ -17,23 +16,6 @@ AuthRepository authRepository(AuthRepositoryRef ref) {
 }
 
 class AuthRepository {
-  static const _userIdKey = 'userId';
-
-  Future<void> saveUserSession(String userId) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(_userIdKey, userId);
-  }
-
-  Future<void> clearUserSession() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.remove(_userIdKey);
-  }
-
-  Future<String?> getUserSession() async {
-    final prefs = await SharedPreferences.getInstance();
-    return prefs.getString(_userIdKey);
-  }
-
   Future<Either<Failure, UserModel>> signup({
     required String name,
     required String email,
@@ -55,7 +37,7 @@ class AuthRepository {
       if (response.statusCode != 201) {
         return Left(Failure(resBodyMap["detail"]));
       }
-      return Right(UserModel.fromMap(resBodyMap));
+      return Right(UserModel.fromMap(resBodyMap["user"]));
     } on Exception catch (e) {
       return Left(Failure(e.toString()));
     }
@@ -82,7 +64,11 @@ class AuthRepository {
       if (response.statusCode != 200) {
         return Left(Failure(resBodyMap["detail"]));
       }
-      return Right(UserModel.fromMap(resBodyMap));
+
+      return Right(
+        UserModel.fromMap(resBodyMap["user"])
+            .copyWith(token: resBodyMap["token"]),
+      );
     } on Exception catch (e) {
       return Left(Failure(e.toString()));
     }
