@@ -1,7 +1,11 @@
+import 'package:fpdart/fpdart.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:spotify_clone/core/provider/current_user_notifier.dart';
 import 'package:spotify_clone/features/auth/model/user_model.dart';
 import 'package:spotify_clone/features/auth/repository/auth_local_repository.dart';
 import 'package:spotify_clone/features/auth/repository/auth_repository.dart';
+
+import '../../../core/failure/failure.dart';
 
 part 'auth_viewmodel.g.dart';
 
@@ -9,10 +13,12 @@ part 'auth_viewmodel.g.dart';
 class AuthViewModel extends _$AuthViewModel {
   late AuthRepository _authRepository;
   late AuthLocalRepository _authLocalRepository;
+  late CurrentUserNotifier _currentUserNotifier;
   @override
   AsyncValue<UserModel>? build() {
     _authRepository = ref.watch(authRepositoryProvider);
     _authLocalRepository = ref.watch(authLocalRepositoryProvider);
+    _currentUserNotifier = ref.watch(currentUserNotifierProvider.notifier);
     return null;
   }
 
@@ -28,7 +34,7 @@ class AuthViewModel extends _$AuthViewModel {
     state = null;
   }
 
-  Future<bool> signUp({
+  Future<void> signUp({
     required String name,
     required String email,
     required String password,
@@ -40,20 +46,14 @@ class AuthViewModel extends _$AuthViewModel {
       password: password,
     );
 
-    return signupRes.fold(
-      (l) {
-        state = AsyncValue.error(l.message, StackTrace.current);
-        return false;
-      },
-      (r) => true,
-    );
-    // final _ = switch (signupRes) {
-    //   Left<Failure, UserModel>(value: final l) => ,
-    //   Right<Failure, UserModel>(value: final r) =>,
-    // };
+    final _ = switch (signupRes) {
+      Left<Failure, UserModel>(value: final l) => state =
+          AsyncValue.error(l.message, StackTrace.current),
+      Right<Failure, UserModel>(value: final r) => state = AsyncValue.data(r),
+    };
   }
 
-  Future<bool> signin({
+  Future<void> signin({
     required String email,
     required String password,
   }) async {
@@ -62,27 +62,36 @@ class AuthViewModel extends _$AuthViewModel {
       email: email,
       password: password,
     );
-
-    return signinRes.fold(
-      (l) {
-        state = AsyncValue.error(l.message, StackTrace.current);
-        return false;
-      },
-      (r) {
-        _authLocalRepository.setToken(r.token);
-        state = AsyncValue.data(r);
-        return true;
+    final val = switch (signinRes) {
+      Left<Failure, UserModel>(value: final l) => state =
+          AsyncValue.error(l.message, StackTrace.current),
+      Right<Failure, UserModel>(value: final r) => state = AsyncValue.data(r),
+    };
+    val.whenData(
+      (value) {
+        _currentUserNotifier.updateUser(value);
+        _authLocalRepository.setToken(value.token);
+        state = AsyncValue.data(value);
       },
     );
-    // final val = switch (signinRes) {
-    //   Left<Failure, UserModel>(value: final l) => state =
-    //       AsyncValue.error(l.message, StackTrace.current),
-    //   Right<Failure, UserModel>(value: final r) => state = AsyncValue.data(r),
-    // };
-    // val.whenData(
-    //   (value) {
-    //     _authRepository.saveUserSession(value.id);
-    //   },
-    // );
+  }
+
+  Future<UserModel?> getUserData() async {
+    final token = _authLocalRepository.getToken();
+    if (token != null) {
+      final res = await _authRepository.getUserData(token);
+      final val = switch (res) {
+        Left<Failure, UserModel>(value: final l) => state =
+            AsyncValue.error(l.message, StackTrace.current),
+        Right<Failure, UserModel>(value: final r) => state = AsyncValue.data(r),
+      };
+      val.whenData(
+        (value) {
+          _currentUserNotifier.updateUser(value);
+        },
+      );
+      return val.value;
+    }
+    return null;
   }
 }

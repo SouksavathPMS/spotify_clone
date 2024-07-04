@@ -37,7 +37,7 @@ class AuthRepository {
       if (response.statusCode != 201) {
         return Left(Failure(resBodyMap["detail"]));
       }
-      return Right(UserModel.fromMap(resBodyMap["user"]));
+      return Right(UserModel.fromMap(resBodyMap));
     } on Exception catch (e) {
       return Left(Failure(e.toString()));
     }
@@ -59,6 +59,31 @@ class AuthRepository {
           'email': email,
           'password': password,
         }),
+      );
+      final resBodyMap = jsonDecode(response.body) as Map<String, dynamic>;
+      if (response.statusCode != 200) {
+        return Left(Failure(resBodyMap["detail"]));
+      }
+
+      return Right(
+        UserModel.fromMap(resBodyMap["user"])
+            .copyWith(token: resBodyMap["token"]),
+      );
+    } on Exception catch (e) {
+      return Left(Failure(e.toString()));
+    }
+  }
+
+  Future<Either<Failure, UserModel>> getUserData(String token) async {
+    try {
+      final response = await http.get(
+        Uri.parse(
+          "${PathConfig.serverUrl}${PathConfig.me}",
+        ),
+        headers: {
+          "Content-Type": "application/json",
+          "x-auth-token": token,
+        },
       );
       final resBodyMap = jsonDecode(response.body) as Map<String, dynamic>;
       if (response.statusCode != 200) {

@@ -14,6 +14,11 @@ GoRouter appRouter(AppRouterRef ref) {
   final GoRouter router = GoRouter(
     debugLogDiagnostics: true,
     redirect: (context, state) async {
+      // __________________________________________
+      // We can also do this but it won't work when there is no internet connection
+      // final authViewModel = ref.read(currentUserNotifierProvider);
+      // final loggedIn = authViewModel != null;
+      // __________________________________________
       final authViewModel = ref.read(authViewModelProvider.notifier);
       final loggedIn = await authViewModel.isLoggedIn();
       final loginloc = state.namedLocation(SigninPage.routeName);

@@ -10,6 +10,8 @@ import 'package:spotify_clone/features/auth/views/pages/signin_page.dart';
 import 'package:spotify_clone/features/auth/views/widgets/auth_gradient_button.dart';
 import 'package:spotify_clone/features/auth/views/widgets/custom_field.dart';
 
+import '../../../../core/utils.dart';
+
 class SignupPage extends ConsumerStatefulWidget {
   static const routeName = "signup";
   const SignupPage({super.key});
@@ -24,7 +26,23 @@ class _SignupPageState extends ConsumerState<SignupPage> {
   @override
   Widget build(BuildContext context) {
     final appBarHeight = AppBar().preferredSize.height;
-    final isLoading = ref.watch(authViewModelProvider)?.isLoading == true;
+    final isLoading = ref.watch(
+        authViewModelProvider.select((value) => value?.isLoading == true));
+
+    ref.listen(
+      authViewModelProvider,
+      (_, next) {
+        next?.when(
+            data: (data) {
+              showSnackbar(context, content: "User created, Please sigin!");
+              context.goNamed(SigninPage.routeName);
+            },
+            error: (error, stackTrace) {
+              showSnackbar(context, content: error.toString());
+            },
+            loading: () {});
+      },
+    );
 
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
@@ -104,15 +122,10 @@ class _SignupPageState extends ConsumerState<SignupPage> {
                                           name: name,
                                           email: email,
                                           password: password,
-                                        )
-                                        .then(
-                                      (value) {
-                                        if (!value) {
-                                          return;
-                                        }
-                                        context.goNamed(SigninPage.routeName);
-                                      },
-                                    );
+                                        );
+                                  } else {
+                                    showSnackbar(context,
+                                        content: "Missing field!");
                                   }
                                 },
                               ),

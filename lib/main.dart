@@ -3,11 +3,13 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:spotify_clone/core/routers/app_router_provider.dart';
 import 'package:spotify_clone/core/theme/theme.dart';
 import 'package:spotify_clone/features/auth/repository/auth_local_repository.dart';
+import 'package:spotify_clone/features/auth/viewmodel/auth_viewmodel.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   final providerContainer = ProviderContainer();
   await providerContainer.read(authLocalRepositoryProvider).init();
+  await providerContainer.read(authViewModelProvider.notifier).getUserData();
 
   runApp(
     UncontrolledProviderScope(

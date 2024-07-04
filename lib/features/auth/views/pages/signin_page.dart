@@ -4,6 +4,7 @@ import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:spotify_clone/core/theme/app_pallete.dart';
+import 'package:spotify_clone/core/utils.dart';
 import 'package:spotify_clone/core/widgets/loading_widget.dart';
 import 'package:spotify_clone/features/auth/views/widgets/auth_gradient_button.dart';
 import 'package:spotify_clone/features/auth/views/widgets/custom_field.dart';
@@ -26,7 +27,23 @@ class _SigninPageState extends ConsumerState<SigninPage> {
   @override
   Widget build(BuildContext context) {
     final appBarHeight = AppBar().preferredSize.height;
-    final isLoading = ref.watch(authViewModelProvider)?.isLoading == true;
+    final isLoading = ref.watch(
+        authViewModelProvider.select((value) => value?.isLoading == true));
+
+    ref.listen(
+      authViewModelProvider,
+      (_, next) {
+        next?.when(
+            data: (data) {
+              showSnackbar(context, content: "Welcome: ${data.name}");
+              context.goNamed(HomeScreen.routeName);
+            },
+            error: (error, stackTrace) {
+              showSnackbar(context, content: error.toString());
+            },
+            loading: () {});
+      },
+    );
 
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
@@ -97,15 +114,10 @@ class _SigninPageState extends ConsumerState<SigninPage> {
                                     ref
                                         .read(authViewModelProvider.notifier)
                                         .signin(
-                                            email: email, password: password)
-                                        .then(
-                                      (value) {
-                                        if (!value) {
-                                          return;
-                                        }
-                                        context.goNamed(HomeScreen.routeName);
-                                      },
-                                    );
+                                            email: email, password: password);
+                                  } else {
+                                    showSnackbar(context,
+                                        content: "Missing field!");
                                   }
                                 },
                               ),
