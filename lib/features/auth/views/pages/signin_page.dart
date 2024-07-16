@@ -5,9 +5,9 @@ import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:spotify_clone/core/theme/app_pallete.dart';
 import 'package:spotify_clone/core/utils.dart';
+import 'package:spotify_clone/core/widgets/custom_field.dart';
 import 'package:spotify_clone/core/widgets/loading_widget.dart';
 import 'package:spotify_clone/features/auth/views/widgets/auth_gradient_button.dart';
-import 'package:spotify_clone/features/auth/views/widgets/custom_field.dart';
 import 'package:spotify_clone/features/home/views/pages/home_screen.dart';
 
 import '../../viewmodel/auth_viewmodel.dart';

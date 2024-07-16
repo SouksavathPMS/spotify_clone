@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:spotify_clone/features/auth/views/pages/signin_page.dart';
 import 'package:spotify_clone/features/auth/views/pages/signup_page.dart';
+import 'package:spotify_clone/features/home/views/pages/upload_song_page.dart';
 
 import '../../features/auth/viewmodel/auth_viewmodel.dart';
 import '../../features/home/views/pages/home_screen.dart';
@@ -13,6 +14,7 @@ part "app_router_provider.g.dart";
 GoRouter appRouter(AppRouterRef ref) {
   final GoRouter router = GoRouter(
     debugLogDiagnostics: true,
+    initialLocation: "/uploadSong",
     redirect: (context, state) async {
       // __________________________________________
       // We can also do this but it won't work when there is no internet connection
@@ -50,6 +52,15 @@ GoRouter appRouter(AppRouterRef ref) {
         builder: (BuildContext context, GoRouterState state) {
           return const HomeScreen();
         },
+        routes: [
+          GoRoute(
+            path: UploadSongPage.routeName,
+            name: UploadSongPage.routeName,
+            builder: (BuildContext context, GoRouterState state) {
+              return const UploadSongPage();
+            },
+          ),
+        ],
       ),
       GoRoute(
         path: "/${SigninPage.routeName}",

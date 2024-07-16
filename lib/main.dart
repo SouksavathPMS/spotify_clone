@@ -26,7 +26,7 @@ class MyApp extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final appRouter = ref.read(appRouterProvider);
     return MaterialApp.router(
-      title: 'Spotify Clone',
+      title: 'Music App',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.darkThemeMode,
       routerConfig: appRouter,
