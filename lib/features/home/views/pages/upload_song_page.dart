@@ -4,10 +4,12 @@ import 'package:dotted_border/dotted_border.dart';
 import 'package:flex_color_picker/flex_color_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
+import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:spotify_clone/core/theme/app_pallete.dart';
 import 'package:spotify_clone/core/utils.dart';
 import 'package:spotify_clone/core/widgets/custom_field.dart';
+import 'package:spotify_clone/features/home/viewmodel/home_viewmodel.dart';
 import 'package:spotify_clone/features/home/views/widgets/audio_wave.dart';
 
 class UploadSongPage extends ConsumerStatefulWidget {
@@ -48,7 +50,27 @@ class _UploadSongPageState extends ConsumerState<UploadSongPage> {
         title: const Text("Upload Song"),
         actions: [
           IconButton(
-            onPressed: () {},
+            onPressed: () async {
+              final validated = _formKey.currentState!.validate();
+              if (!validated ||
+                  selectedAudio.value == null ||
+                  selectedImage.value == null) {
+                showSnackbar(context, content: "Missing fields");
+                return;
+              }
+              final songName =
+                  _formKey.currentState!.fields["song_name"]!.value;
+              final artist =
+                  _formKey.currentState!.fields["pick_artist"]!.value;
+
+              await ref.read(homeViewModelProvider.notifier).uploadSong(
+                    seletedAudio: selectedAudio.value!,
+                    selectedThumbnail: selectedImage.value!,
+                    songName: songName,
+                    artist: artist,
+                    seletedColor: seletedColor.value,
+                  );
+            },
             icon: const Icon(
               Icons.check_rounded,
             ),
@@ -114,6 +136,9 @@ class _UploadSongPageState extends ConsumerState<UploadSongPage> {
                     hintText: "Pick song",
                     readOnly: true,
                     onTap: _selectAudio,
+                    validator: FormBuilderValidators.compose([
+                      FormBuilderValidators.required(),
+                    ]),
                   ),
                   ValueListenableBuilder(
                     valueListenable: selectedAudio,
@@ -126,14 +151,20 @@ class _UploadSongPageState extends ConsumerState<UploadSongPage> {
                     },
                   ),
                   const SizedBox(height: 12),
-                  const CustomField(
+                  CustomField(
                     name: "pick_artist",
                     hintText: "Artist",
+                    validator: FormBuilderValidators.compose([
+                      FormBuilderValidators.required(),
+                    ]),
                   ),
                   const SizedBox(height: 12),
-                  const CustomField(
+                  CustomField(
                     name: "song_name",
                     hintText: "Song Name",
+                    validator: FormBuilderValidators.compose([
+                      FormBuilderValidators.required(),
+                    ]),
                   ),
                 ],
               ),
