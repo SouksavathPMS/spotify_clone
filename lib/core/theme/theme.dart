@@ -9,6 +9,9 @@ class AppTheme {
       focusedBorder: _border(Pallete.gradient2),
     ),
     textTheme: const TextTheme(),
+    bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+      backgroundColor: Pallete.backgroundColor,
+    ),
   );
 
   static OutlineInputBorder _border(Color borderColor) {

@@ -8,7 +8,7 @@ import 'package:spotify_clone/core/utils.dart';
 import 'package:spotify_clone/core/widgets/custom_field.dart';
 import 'package:spotify_clone/core/widgets/loading_widget.dart';
 import 'package:spotify_clone/features/auth/views/widgets/auth_gradient_button.dart';
-import 'package:spotify_clone/features/home/views/pages/home_screen.dart';
+import 'package:spotify_clone/features/home/views/pages/songs_page.dart';
 
 import '../../viewmodel/auth_viewmodel.dart';
 import 'signup_page.dart';
@@ -36,7 +36,7 @@ class _SigninPageState extends ConsumerState<SigninPage> {
         next?.when(
             data: (data) {
               showSnackbar(context, content: "Welcome: ${data.name}");
-              context.goNamed(HomeScreen.routeName);
+              context.goNamed(SongsPage.routeName);
             },
             error: (error, stackTrace) {
               showSnackbar(context, content: error.toString());
