@@ -1,9 +1,11 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:fpdart/fpdart.dart';
 import 'package:http/http.dart' as https;
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:spotify_clone/core/failure/failure.dart';
+import 'package:spotify_clone/features/home/model/songs_model.dart';
 
 import '../../../core/config/path_config.dart';
 
@@ -49,6 +51,39 @@ class HomeRepository {
         return left(Failure(await res.stream.bytesToString()));
       }
       return right(await res.stream.bytesToString());
+    } catch (e) {
+      return left(Failure(e.toString()));
+    }
+  }
+
+  Future<Either<Failure, List<SongsModel>>> fetchSongs({
+    required String token,
+  }) async {
+    try {
+      final res = await https.get(
+        Uri.parse(
+          "${PathConfig.serverUrl}${PathConfig.songsList}",
+        ),
+        headers: {
+          "Content-Type": "application/json",
+          "x-auth-token": token,
+        },
+      );
+
+      var resBodyMap = jsonDecode(res.body);
+
+      if (res.statusCode != 200) {
+        resBodyMap = resBodyMap as Map<String, dynamic>;
+        return left(Failure(resBodyMap["detail"]));
+      }
+      resBodyMap = resBodyMap as List;
+      final songsList = resBodyMap
+          .map(
+            (e) => SongsModel.fromJson(e),
+          )
+          .toList();
+
+      return right(songsList);
     } catch (e) {
       return left(Failure(e.toString()));
     }

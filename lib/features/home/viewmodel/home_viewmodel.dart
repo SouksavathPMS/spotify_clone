@@ -19,6 +19,13 @@ class HomeViewModel extends _$HomeViewModel {
     return null;
   }
 
+  Future<void> getSongs() async {
+    final songs = await _homeRepository.fetchSongs(
+      token: ref.read(currentUserNotifierProvider)!.token,
+    );
+    print(songs);
+  }
+
   Future<void> uploadSong({
     required File seletedAudio,
     required File selectedThumbnail,
