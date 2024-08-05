@@ -6,6 +6,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:spotify_clone/core/failure/failure.dart';
 import 'package:spotify_clone/core/provider/current_user_notifier.dart';
 import 'package:spotify_clone/core/utils.dart';
+import 'package:spotify_clone/features/home/repository/home_local_repository.dart';
 import 'package:spotify_clone/features/home/repository/home_repository.dart';
 
 import '../model/songs_model.dart';
@@ -25,9 +26,11 @@ Future<List<SongsModel>> getAllSongs(GetAllSongsRef ref) async {
 @riverpod
 class HomeViewModel extends _$HomeViewModel {
   late HomeRepository _homeRepository;
+  late HomeLocalRepository _homeLocalRepository;
   @override
   AsyncValue? build() {
     _homeRepository = ref.watch(homeRepositoryProvider);
+    _homeLocalRepository = ref.watch(homeLocalRepositoryProvider);
     return null;
   }
 
@@ -58,5 +61,9 @@ class HomeViewModel extends _$HomeViewModel {
           AsyncValue.error(l.message, StackTrace.current),
       Right<Failure, String>(value: final r) => state = AsyncValue.data(r),
     };
+  }
+
+  List<SongsModel> getRecentlyPlayedSongs() {
+    return _homeLocalRepository.loadSongs();
   }
 }

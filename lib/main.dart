@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:hive/hive.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:spotify_clone/core/routers/app_router_provider.dart';
 import 'package:spotify_clone/core/theme/theme.dart';
 import 'package:spotify_clone/features/auth/repository/auth_local_repository.dart';
@@ -7,6 +9,8 @@ import 'package:spotify_clone/features/auth/viewmodel/auth_viewmodel.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  final dir = await getApplicationDocumentsDirectory();
+  Hive.defaultDirectory = dir.path;
   final providerContainer = ProviderContainer();
   await providerContainer.read(authLocalRepositoryProvider).init();
   await providerContainer.read(authViewModelProvider.notifier).getUserData();
