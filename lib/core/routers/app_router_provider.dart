@@ -7,6 +7,7 @@ import 'package:spotify_clone/features/home/views/pages/library_page.dart';
 import 'package:spotify_clone/features/home/views/pages/navigator_action.dart';
 import 'package:spotify_clone/features/home/views/pages/songs_page.dart';
 import 'package:spotify_clone/features/home/views/pages/upload_song_page.dart';
+import 'package:spotify_clone/features/home/views/widgets/music_player.dart';
 
 import '../../features/auth/viewmodel/auth_viewmodel.dart';
 
@@ -69,6 +70,13 @@ GoRouter appRouter(AppRouterRef ref) {
                       return const UploadSongPage();
                     },
                   ),
+                  GoRoute(
+                    path: MusicPlayer.routeName,
+                    name: MusicPlayer.routeName,
+                    builder: (BuildContext context, GoRouterState state) {
+                      return const MusicPlayer();
+                    },
+                  ),
                 ],
               ),
             ],
@@ -81,6 +89,15 @@ GoRouter appRouter(AppRouterRef ref) {
                 builder: (BuildContext context, GoRouterState state) {
                   return const LibraryPage();
                 },
+                routes: [
+                  GoRoute(
+                    path: MusicPlayer.routeName,
+                    name: "library${MusicPlayer.routeName}",
+                    builder: (BuildContext context, GoRouterState state) {
+                      return const MusicPlayer();
+                    },
+                  ),
+                ],
               ),
             ],
           ),

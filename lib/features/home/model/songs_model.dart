@@ -1,3 +1,4 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 // To parse this JSON data, do
 //
 //     final songsModel = songsModelFromJson(jsonString);
@@ -43,4 +44,22 @@ class SongsModel {
         "artist": artist,
         "hex_code": hexCode,
       };
+
+  SongsModel copyWith({
+    String? songUrl,
+    String? thumbnail,
+    String? songName,
+    String? id,
+    String? artist,
+    String? hexCode,
+  }) {
+    return SongsModel(
+      songUrl: songUrl ?? this.songUrl,
+      thumbnail: thumbnail ?? this.thumbnail,
+      songName: songName ?? this.songName,
+      id: id ?? this.id,
+      artist: artist ?? this.artist,
+      hexCode: hexCode ?? this.hexCode,
+    );
+  }
 }

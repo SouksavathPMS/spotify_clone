@@ -1,14 +1,26 @@
 import 'dart:io';
 import 'dart:ui';
 
-import 'package:fpdart/src/either.dart';
+import 'package:fpdart/fpdart.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:spotify_clone/core/failure/failure.dart';
 import 'package:spotify_clone/core/provider/current_user_notifier.dart';
 import 'package:spotify_clone/core/utils.dart';
 import 'package:spotify_clone/features/home/repository/home_repository.dart';
 
+import '../model/songs_model.dart';
+
 part 'home_viewmodel.g.dart';
+
+@riverpod
+Future<List<SongsModel>> getAllSongs(GetAllSongsRef ref) async {
+  final token = ref.watch(currentUserNotifierProvider)!.token;
+  final res = await ref.watch(homeRepositoryProvider).fetchSongs(token: token);
+  return switch (res) {
+    Right<Failure, List<SongsModel>>(value: final r) => r,
+    Left<Failure, List<SongsModel>>(value: final l) => throw l.message,
+  };
+}
 
 @riverpod
 class HomeViewModel extends _$HomeViewModel {
@@ -19,12 +31,10 @@ class HomeViewModel extends _$HomeViewModel {
     return null;
   }
 
-  Future<void> getSongs() async {
-    final songs = await _homeRepository.fetchSongs(
-      token: ref.read(currentUserNotifierProvider)!.token,
-    );
-    print(songs);
-  }
+  // Future<void> getSongs() async {
+
+  //   print(songs);
+  // }
 
   Future<void> uploadSong({
     required File seletedAudio,

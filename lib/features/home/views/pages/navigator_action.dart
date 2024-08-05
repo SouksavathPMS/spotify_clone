@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:spotify_clone/core/theme/app_pallete.dart';
+import 'package:spotify_clone/features/home/views/widgets/music_slab.dart';
 
 class NavigatorAction extends ConsumerWidget {
   const NavigatorAction({
@@ -14,7 +15,15 @@ class NavigatorAction extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
-      body: navigationShell,
+      body: Stack(
+        children: [
+          navigationShell,
+          const Positioned(
+            bottom: 0,
+            child: MusicSlab(),
+          ),
+        ],
+      ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: navigationShell.currentIndex,
         onTap: (index) => navigationShell.goBranch(index),
