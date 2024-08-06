@@ -5,6 +5,8 @@ import 'package:spotify_clone/core/theme/app_pallete.dart';
 import 'package:spotify_clone/core/utils.dart';
 
 import '../../../../core/provider/current_song_notifier.dart';
+import '../../../../core/provider/current_user_notifier.dart';
+import '../../viewmodel/home_viewmodel.dart';
 
 class MusicPlayer extends ConsumerWidget {
   static const routeName = "musicPlayer";
@@ -96,8 +98,29 @@ class MusicPlayer extends ConsumerWidget {
                         ),
                         const Spacer(),
                         IconButton(
-                          onPressed: () {},
-                          icon: const Icon(CupertinoIcons.heart),
+                          onPressed: () {
+                            ref
+                                .read(homeViewModelProvider.notifier)
+                                .favSong(current.id);
+                          },
+                          icon: Consumer(
+                            builder: (context, ref, child) {
+                              final currentFavorite = ref.watch(
+                                currentUserNotifierProvider.select(
+                                  (value) => value?.user.favorites ?? [],
+                                ),
+                              );
+                              return Icon(
+                                currentFavorite
+                                        .where((element) =>
+                                            element.songId == current.id)
+                                        .isEmpty
+                                    ? CupertinoIcons.heart
+                                    : CupertinoIcons.heart_fill,
+                                color: Pallete.whiteColor,
+                              );
+                            },
+                          ),
                         )
                       ],
                     ),

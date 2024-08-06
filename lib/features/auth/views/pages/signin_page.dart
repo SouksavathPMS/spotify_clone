@@ -35,7 +35,7 @@ class _SigninPageState extends ConsumerState<SigninPage> {
       (_, next) {
         next?.when(
             data: (data) {
-              showSnackbar(context, content: "Welcome: ${data.name}");
+              showSnackbar(context, content: "Welcome: ${data.user.name}");
               context.goNamed(SongsPage.routeName);
             },
             error: (error, stackTrace) {

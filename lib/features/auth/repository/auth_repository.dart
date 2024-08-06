@@ -37,7 +37,7 @@ class AuthRepository {
       if (response.statusCode != 201) {
         return Left(Failure(resBodyMap["detail"]));
       }
-      return Right(UserModel.fromMap(resBodyMap));
+      return Right(UserModel.fromJson(resBodyMap));
     } on Exception catch (e) {
       return Left(Failure(e.toString()));
     }
@@ -60,14 +60,14 @@ class AuthRepository {
           'password': password,
         }),
       );
+
       final resBodyMap = jsonDecode(response.body) as Map<String, dynamic>;
       if (response.statusCode != 200) {
         return Left(Failure(resBodyMap["detail"]));
       }
 
       return Right(
-        UserModel.fromMap(resBodyMap["user"])
-            .copyWith(token: resBodyMap["token"]),
+        UserModel.fromJson(resBodyMap),
       );
     } on Exception catch (e) {
       return Left(Failure(e.toString()));
@@ -85,14 +85,14 @@ class AuthRepository {
           "x-auth-token": token,
         },
       );
+
       final resBodyMap = jsonDecode(response.body) as Map<String, dynamic>;
       if (response.statusCode != 200) {
         return Left(Failure(resBodyMap["detail"]));
       }
 
       return Right(
-        UserModel.fromMap(resBodyMap["user"])
-            .copyWith(token: resBodyMap["token"]),
+        UserModel.fromJson(resBodyMap),
       );
     } on Exception catch (e) {
       return Left(Failure(e.toString()));

@@ -1,72 +1,107 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
+// To parse this JSON data, do
+//
+//     final userModel = userModelFromJson(jsonString);
+
 import 'dart:convert';
+
+UserModel userModelFromJson(String str) => UserModel.fromJson(json.decode(str));
+
+String userModelToJson(UserModel data) => json.encode(data.toJson());
 
 class UserModel {
   final String token;
-  final String id;
-  final String name;
-  final String email;
+  final User user;
+
   UserModel({
     required this.token,
-    required this.id,
-    required this.name,
-    required this.email,
+    required this.user,
   });
 
-  Map<String, dynamic> toMap() {
-    return <String, dynamic>{
-      'token': token,
-      'id': id,
-      'name': name,
-      'email': email,
-    };
-  }
+  factory UserModel.fromJson(Map<String, dynamic> json) => UserModel(
+        token: json["token"],
+        user: User.fromJson(json["user"]),
+      );
 
-  factory UserModel.fromMap(Map<String, dynamic> map) {
-    return UserModel(
-      token: map['token'] ?? '',
-      id: map['id'] ?? '',
-      name: map['name'] ?? '',
-      email: map['email'] ?? '',
-    );
-  }
-
-  String toJson() => json.encode(toMap());
-
-  factory UserModel.fromJson(String source) =>
-      UserModel.fromMap(json.decode(source) as Map<String, dynamic>);
+  Map<String, dynamic> toJson() => {
+        "token": token,
+        "user": user.toJson(),
+      };
 
   UserModel copyWith({
     String? token,
-    String? id,
-    String? name,
-    String? email,
+    User? user,
   }) {
     return UserModel(
       token: token ?? this.token,
-      id: id ?? this.id,
-      name: name ?? this.name,
-      email: email ?? this.email,
+      user: user ?? this.user,
     );
   }
+}
 
-  @override
-  String toString() {
-    return 'UserModel(token: $token, id: $id, name: $name, email: $email)';
+class User {
+  final String email;
+  final String name;
+  final String id;
+  final List<Favorite> favorites;
+
+  User({
+    required this.email,
+    required this.name,
+    required this.id,
+    required this.favorites,
+  });
+
+  factory User.fromJson(Map<String, dynamic> json) => User(
+        email: json["email"],
+        name: json["name"],
+        id: json["id"],
+        favorites: List<Favorite>.from(
+            json["favorites"].map((x) => Favorite.fromJson(x))),
+      );
+
+  Map<String, dynamic> toJson() => {
+        "email": email,
+        "name": name,
+        "id": id,
+        "favorites": List<dynamic>.from(favorites.map((x) => x.toJson())),
+      };
+
+  User copyWith({
+    String? email,
+    String? name,
+    String? id,
+    List<Favorite>? favorites,
+  }) {
+    return User(
+      email: email ?? this.email,
+      name: name ?? this.name,
+      id: id ?? this.id,
+      favorites: favorites ?? this.favorites,
+    );
   }
+}
 
-  @override
-  bool operator ==(covariant UserModel other) {
-    if (identical(this, other)) return true;
+class Favorite {
+  final String songId;
+  final String id;
+  final String userId;
 
-    return other.token == token &&
-        other.id == id &&
-        other.name == name &&
-        other.email == email;
-  }
+  Favorite({
+    required this.songId,
+    required this.id,
+    required this.userId,
+  });
 
-  @override
-  int get hashCode {
-    return token.hashCode ^ id.hashCode ^ name.hashCode ^ email.hashCode;
-  }
+  factory Favorite.fromJson(Map<String, dynamic> json) => Favorite(
+        songId: json["song_id"],
+        id: json["id"],
+        userId: json["user_id"],
+      );
+
+  Map<String, dynamic> toJson() => {
+        "song_id": songId,
+        "id": id,
+        "user_id": userId,
+      };
 }

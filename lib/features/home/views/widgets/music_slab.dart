@@ -2,8 +2,10 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:spotify_clone/core/provider/current_song_notifier.dart';
+import 'package:spotify_clone/core/provider/current_user_notifier.dart';
 import 'package:spotify_clone/core/theme/app_pallete.dart';
 import 'package:spotify_clone/core/utils.dart';
+import 'package:spotify_clone/features/home/viewmodel/home_viewmodel.dart';
 import 'package:spotify_clone/features/home/views/widgets/music_player.dart';
 
 class MusicSlab extends ConsumerWidget {
@@ -106,10 +108,27 @@ class MusicSlab extends ConsumerWidget {
                 Row(
                   children: [
                     IconButton(
-                      onPressed: () {},
-                      icon: const Icon(
-                        CupertinoIcons.heart,
-                        color: Pallete.whiteColor,
+                      onPressed: () {
+                        ref
+                            .read(homeViewModelProvider.notifier)
+                            .favSong(current.id);
+                      },
+                      icon: Consumer(
+                        builder: (context, ref, child) {
+                          final currentFavorite =
+                              ref.watch(currentUserNotifierProvider.select(
+                            (value) => value?.user.favorites ?? [],
+                          ));
+                          return Icon(
+                            currentFavorite
+                                    .where((element) =>
+                                        element.songId == current.id)
+                                    .isEmpty
+                                ? CupertinoIcons.heart
+                                : CupertinoIcons.heart_fill,
+                            color: Pallete.whiteColor,
+                          );
+                        },
                       ),
                     ),
                     IconButton(
